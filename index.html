@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Coding train ejemplo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+    <style>
+        #mapid { height: 50vw; }
+    </style>
+</head>
+<body>
+
+    <div id="mapid"></div>
+
+    <img src="" id="Rainbow" width="500">
+    <script>
+        
+        const tilesProvider = "http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png"
+        const mymap = L.map('mapid').setView([0,0], 3);
+        var latitude = 0
+        var longitude =0
+        var latO
+        var long0
+                
+        const marker=L.marker([0,0]).addTo(mymap);
+     
+        
+
+        L.tileLayer(tilesProvider,{
+    maxZoom:40, 
+}).addTo(mymap)
+        if ("geolocation" in navigator) {
+            console.log("la geolocalización está disponible")
+            navigator.geolocation.getCurrentPosition(position =>{
+            latitude= (position.coords.latitude);
+            longitude= (position.coords.longitude);
+            var latlng= L.latLng(latitude,longitude);    
+            marker.setLatLng([latitude,longitude]);
+            mymap.flyTo(latlng, 15);
+            console.log(latitude, longitude)
+            });
+        } else {
+                console.log("la geolocalización NO está disponible")
+            }
+
+        getData();        
+
+       async function getData(){
+            const response = await fetch ("tablaMapa.csv");
+            const data = await response.text();
+            //console.log(data);
+
+            const puntoOriginal = data.split('\n').slice(1,2);
+                console.log(puntoOriginal)
+                puntoOriginal.forEach(row=>{
+                    const columnaO = row.split(",");
+                    latO= columnaO[1]
+                    longO=columnaO[2]
+                    console.log("esto funciona si : " +latO,longO)
+                });
+            const table = data.split('\n').slice(1);
+            table.forEach(row =>{
+                const columna = row.split(",");
+                const id = columna[0];
+                const lat= columna[1];
+                const long= columna[2];
+               
+                var latPunto = ((lat*latitude)/latO/100);
+                var longPunto = ((long*longitude)/longO/100);
+
+                const coordenadas = [latPunto,longPunto];
+                const markerCsv = L.marker ([0,0]).addTo(mymap)
+                markerCsv.setLatLng([latPunto,longPunto]);
+                console.log(coordenadas)
+                
+
+                
+            })
+    
+        }
+       
+    </script>
+</body>
+</html>
